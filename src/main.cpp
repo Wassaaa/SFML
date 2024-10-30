@@ -3,11 +3,11 @@
 int main()
 {
     Game game;
+    std::srand(static_cast<unsigned>(time(NULL)));
 
     while (game.running())
     {
         //init rand
-        std::srand(static_cast<unsigned>(time(NULL)));
         // update
         game.update();
         // render

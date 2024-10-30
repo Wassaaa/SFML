@@ -4,6 +4,8 @@ Game::Game()
 {
 	this->initVariables();
 	this->initWindow();
+	this->initFonts();
+	this->initText();
 	this->initEnemies();
 }
 
@@ -41,12 +43,15 @@ void Game::update()
 	{
 		// this->updateMousePositions();
 		this->updateEnemies();
+		this->updateText();
 	}
 }
 
 void Game::updateEnemies()
 {
-	bool deleted = false;
+	bool	deleted;
+
+	deleted = false;
 	if (this->enemies.size() < this->maxEnemies)
 	{
 		if (this->enemySpawnTimer >= this->enemySpawnTimerMax)
@@ -56,22 +61,31 @@ void Game::updateEnemies()
 		}
 		else
 			this->enemySpawnTimer += 1.0f;
-
 	}
 	for (int i = 0; i < this->enemies.size(); i++)
 	{
-
 		if (this->mouseClickPos.x > -1 && this->mouseClickPos.y > -1)
 		{
 			if (this->enemies[i].getGlobalBounds().contains(this->mouseClickPos))
 			{
+				sf::Color col = this->enemies[i].getFillColor();
+				if (col == sf::Color::Magenta)
+					this->points += 10;
+				else if (col == sf::Color::Blue)
+					this->points += 7;
+				else if (col == sf::Color::Cyan)
+					this->points += 5;
+				else if (col == sf::Color::Red)
+					this->points += 3;
+				else if (col == sf::Color::Green)
+					this->points += 1;
 				this->enemies.erase(this->enemies.begin() + i);
 				deleted = true;
 				this->mouseClickPos = sf::Vector2f(-1.0f, -1.0f);
-				this->points += 10u;
 			}
 		}
-		if (!deleted && this->enemies[i].getPosition().y > this->window->getSize().y)
+		if (!deleted
+			&& this->enemies[i].getPosition().y > this->window->getSize().y)
 		{
 			this->enemies.erase(this->enemies.begin() + i);
 			deleted = true;
@@ -84,22 +98,37 @@ void Game::updateEnemies()
 	this->mouseClickPos = sf::Vector2f(-1.0f, -1.0f);
 }
 
+void Game::updateText()
+{
+	std::stringstream ss;
+
+	ss << "Points: " << this->points << "\n"
+		<< "Health: " << this->health << "\n";
+	this->uiText.setString(ss.str());
+}
+
 void Game::render()
 {
 	this->window->clear();
 	// render items
 	// this->window->draw(this->enemy);
-	this->renderEnemies();
+	this->renderEnemies(*this->window);
+	this->renderText(*this->window);
 	// end frame
 	this->window->display();
 }
 
-void Game::renderEnemies()
+void Game::renderEnemies(sf::RenderTarget &target)
 {
 	for (auto &e : this->enemies)
 	{
-		this->window->draw(e);
+		target.draw(e);
 	}
+}
+
+void Game::renderText(sf::RenderTarget &target)
+{
+	target.draw(this->uiText);
 }
 
 void Game::pollEvents()
@@ -118,7 +147,7 @@ void Game::pollEvents()
 		case sf::Event::MouseButtonPressed:
 			if (this->ev.mouseButton.button == sf::Mouse::Left)
 				this->mouseClickPos = this->window->mapPixelToCoords(sf::Mouse::getPosition(*this->window));
-			break;
+			break ;
 		}
 	}
 }
@@ -131,11 +160,39 @@ void Game::updateMousePositions()
 
 void Game::spawnEnemy()
 {
-	this->enemy.setPosition(
-		static_cast<float>(rand() % static_cast<int>(this->window->getSize().x - this->enemy.getSize().x)),
-		0.f
-	);
-	this->enemy.setFillColor(sf::Color::Green);
+	this->enemy.setPosition(static_cast<float>(rand()
+			% static_cast<int>(this->window->getSize().x
+				- this->enemy.getSize().x)), 0.f);
+
+	int type = rand() % 5;
+
+	switch (type)
+	{
+	case 0:
+		this->enemy.setFillColor(sf::Color::Magenta);
+		this->enemy.setScale(0.2f, 0.2f);
+		break;
+	case 1:
+		this->enemy.setFillColor(sf::Color::Blue);
+		this->enemy.setScale(0.4f, 0.4f);
+		break;
+	case 2:
+		this->enemy.setFillColor(sf::Color::Cyan);
+		this->enemy.setScale(0.8f, 0.8f);
+		break;
+	case 3:
+		this->enemy.setFillColor(sf::Color::Red);
+		this->enemy.setScale(1.2f, 1.2f);
+		break;
+	case 4:
+		this->enemy.setFillColor(sf::Color::Green);
+		this->enemy.setScale(1.5f, 1.5f);
+		break;
+	default:
+		this->enemy.setFillColor(sf::Color::Yellow);
+		this->enemy.setScale(1.5f, 1.5f);
+		break;
+	}
 	this->enemies.push_back(this->enemy);
 }
 
@@ -165,4 +222,18 @@ void Game::initEnemies()
 	this->enemy.setSize(sf::Vector2f(100.0f, 100.0f));
 	this->enemy.setScale(sf::Vector2f(0.5f, 0.5f));
 	this->enemy.setFillColor(sf::Color::Cyan);
+}
+
+void Game::initFonts()
+{
+	if (!this->font.loadFromFile("../../Fonts/RubikWetPaint-Regular.ttf"))
+		std::cout << "Font Error\n";
+}
+
+void Game::initText()
+{
+	this->uiText.setFont(this->font);
+	this->uiText.setCharacterSize(32);
+	this->uiText.setFillColor(sf::Color::White);
+	this->uiText.setString("NONE");
 }

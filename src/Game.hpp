@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+#include <sstream>
 
 /*
 	Class that acts as a game engine
@@ -25,8 +26,10 @@ public:
 	//member functions
 	void update();
 	void updateEnemies();
+	void updateText();
 	void render();
-	void renderEnemies();
+	void renderEnemies(sf::RenderTarget &target);
+	void renderText(sf::RenderTarget &target);
 	void pollEvents();
 	void updateMousePositions();
 	void spawnEnemy();
@@ -42,6 +45,8 @@ private:
 	void initVariables();
 	void initWindow();
 	void initEnemies();
+	void initFonts();
+	void initText();
 
 	//game logic
 	unsigned points;
@@ -49,6 +54,13 @@ private:
 	float enemySpawnTimer;
 	float enemySpawnTimerMax;
 	int maxEnemies;
+
+	//resources
+	sf::Font font;
+
+	//text
+	sf::Text uiText;
+
 
 	//mouse positions
 	sf::Vector2i mousePosWindow;

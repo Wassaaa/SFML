@@ -26,6 +26,10 @@ void Game::updateInput()
 	int tile_size = int(this->tileMap.get()->getTileSize());
 	std::cout << x << " : " << y << "( " << x / tile_size << " : " << y / tile_size << " )" << std::endl;
 
+	int rand_x = rand() % this->tilesWidth;
+	int rand_y = rand() % this->tilesHeight;
+	sf::IntRect random_rect = sf::IntRect(rand_x * this->tileSize, rand_y * this->tileSize, this->tileSize, this->tileSize);
+
 	//player movement
 	if (sf::Keyboard::isKeyPressed(this->keyboardMappings["MOVE_LEFT"]))
 		this->player.get()->move(-1.f, 0.f);
@@ -35,9 +39,9 @@ void Game::updateInput()
 		this->player.get()->jump();
 	//tile functions
 	if (sf::Mouse::isButtonPressed(this->mouseMappings["BTN_ADD_TILE"]))
-		this->tileMap.get()->addTile(x, y, this->tile_scale);
+		this->tileMap.get()->addTile(x / tile_size, y / tile_size, this->tileScale, random_rect);
 	else if (sf::Mouse::isButtonPressed(this->mouseMappings["BTN_REMOVE_TILE"]))
-		this->tileMap.get()->removeTile(x, y);
+		this->tileMap.get()->removeTile(x / tile_size, y / tile_size);
 }
 
 void Game::update()
@@ -133,10 +137,15 @@ void Game::initTileSheet()
 {
 	if (!this->tileSheet.loadFromFile("/home/a/SFML/textures/Legacy/Assets/Packs/grotto_escape_pack/Base pack/Spritesheets/tiles.png"))
 		std::cout << "tiles map error";
-	this->tile_scale = 3.f;
+	this->tileScale = 4.f;
+	this->tileSize = 16;
+	this->tilesWidth = this->tileSheet.getSize().x / this->tileSize;
+	this->tilesHeight = this->tileSheet.getSize().y / this->tileSize;
 }
 
 void Game::initTileMap()
 {
-	this->tileMap = std::make_shared<TileMap>(20, 20, &this->tileSheet, 16);
+	sf::Vector2u size = this->window.getSize();
+
+	this->tileMap = std::make_shared<TileMap>(size.x, size.y, &this->tileSheet, int(this->tileSize * this->tileScale));
 }

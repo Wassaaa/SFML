@@ -10,6 +10,8 @@ TileMap::TileMap(unsigned width, unsigned height, sf::Texture *tile_sheet, unsig
 {
 	this->tileSheet = tile_sheet;
 	this->tileSize = tile_size;
+	width /= tile_size;
+	height /= tile_size;
 
 	this->tiles.resize(width);
 	for (int i = 0; i < this->tiles.size(); i++)
@@ -20,7 +22,7 @@ TileMap::~TileMap()
 {
 	for (int i = 0; i < this->tiles.size(); i++)
 	{
-		for (int j = 0; j < this->tiles.size(); j++)
+		for (int j = 0; j < this->tiles[i].size(); j++)
 		{
 			delete this->tiles[i][j];
 		}
@@ -28,7 +30,7 @@ TileMap::~TileMap()
 
 }
 
-void TileMap::addTile(unsigned x, unsigned y, float scale)
+void TileMap::addTile(unsigned x, unsigned y, float scale, sf::IntRect rect)
 {
 	if (x < this->tiles.size() && x >= 0)
 	{
@@ -36,7 +38,7 @@ void TileMap::addTile(unsigned x, unsigned y, float scale)
 		{
 			if (this->tiles[x][y] == nullptr)
 			{
-				this->tiles[x][y] = new Tile(x, y, this->tileSize, this->tileSheet, sf::IntRect(0, 0, this->tileSize, this->tileSize), false, scale);
+				this->tiles[x][y] = new Tile(x, y, this->tileSize, this->tileSheet, rect, false, scale);
 			}
 		}
 	}
@@ -61,7 +63,7 @@ void TileMap::update()
 {
 	for (int i = 0; i < this->tiles.size(); i++)
 	{
-		for (int j = 0; j < this->tiles.size(); j++)
+		for (int j = 0; j < this->tiles[i].size(); j++)
 		{
 			if (this->tiles[i][j] != nullptr)
 				this->tiles[i][j]->update();
@@ -73,7 +75,7 @@ void TileMap::render(sf::RenderTarget &target)
 {
 	for (int i = 0; i < this->tiles.size(); i++)
 	{
-		for (int j = 0; j < this->tiles.size(); j++)
+		for (int j = 0; j < this->tiles[i].size(); j++)
 		{
 			if (this->tiles[i][j] != nullptr)
 				this->tiles[i][j]->render(target);

@@ -14,7 +14,7 @@ public:
 	inline const unsigned& getTileSize() const { return this->tileSize;}
 
 	//functions
-	void addTile(unsigned x, unsigned y, float scale);
+	void addTile(unsigned x, unsigned y, float scale, sf::IntRect rect);
 	void removeTile(unsigned x, unsigned y);
 
 	void update();

@@ -34,7 +34,12 @@ private:
 	std::map<std::string, sf::Keyboard::Key> keyboardMappings;
 	std::map<std::string, sf::Mouse::Button> mouseMappings;
 	//variables
-	float tile_scale;
+
+	//tiles file
+	float tileScale;
+	int tileSize;
+	int tilesWidth;
+	int tilesHeight;
 
 	void initWindow();
 	void initInput();

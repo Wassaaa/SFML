@@ -17,7 +17,13 @@ add_executable(main)
 target_sources(main
     PRIVATE
         src/main.cpp
+        src/Game.cpp
+        src/Player.cpp
+        src/Tile.cpp
+        src/TileMap.cpp
 )
+
+target_precompile_headers(main PRIVATE pch.hpp)
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)
 

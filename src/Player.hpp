@@ -16,9 +16,11 @@ public:
 	void updatePhysics();
 	void updateMovement();
 	void updateAnim(float &dt);
+	//movement
 	void move(const float dir_x, const float dir_y);
 	void jump();
-
+	void updateSpriteFacing();
+	PlayerState determineState();
 	//accessors
 	const sf::Vector2f getPosition() const;
 	const sf::FloatRect getGlobalBounds() const;
@@ -36,9 +38,9 @@ private:
 	float scale;
 
 	//Movement
-	t_mv_dir moveDirection;
+	MoveDir moveDirection;
+	PlayerState currentState;
 	//Animation
-	t_anim_state animState;
 
 	//physics
 	sf::Vector2f velocity;

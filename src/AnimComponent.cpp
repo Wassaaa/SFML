@@ -13,7 +13,7 @@ bool AnimComponent::loadTexture(const std::string &texturePath)
 	return (this->animSheet.loadFromFile(texturePath));
 }
 
-void AnimComponent::addAnim(const t_anim_state animState,
+void AnimComponent::addAnim(const PlayerState animState,
 	const sf::Vector2i &frameSize, const sf::Vector2i &startPos, size_t frameCount,
 	sf::Time frameDuration, bool loop = true)
 {
@@ -27,7 +27,7 @@ void AnimComponent::addAnim(const t_anim_state animState,
 			frameSize.y);
 		animations[animState].addFrame(frame);
 	}
-	if (currentAnimation == NOTHING)
+	if (currentAnimation == PlayerState::NOTHING)
 	{
 		currentAnimation = animState;
 		sprite.setTexture(animSheet);
@@ -35,7 +35,7 @@ void AnimComponent::addAnim(const t_anim_state animState,
 	}
 }
 
-void AnimComponent::playAnimation(t_anim_state anim)
+void AnimComponent::playAnimation(PlayerState anim)
 {
 	if (this->currentAnimation != anim)
 	{

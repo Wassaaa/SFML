@@ -11,18 +11,18 @@ public:
 	~AnimComponent();
 
 	bool loadTexture(const std::string& texturePath);
-	void addAnim(const t_anim_state animState, const sf::Vector2i& frameSize,
+	void addAnim(const PlayerState animState, const sf::Vector2i& frameSize,
 				const sf::Vector2i& startPos, size_t frames, sf::Time frameDuration,
 				bool loop);
-	void playAnimation(t_anim_state anim);
+	void playAnimation(PlayerState anim);
 	void update(float dt);
 
 
 private:
 	sf::Sprite&								sprite;
 	sf::Texture								animSheet;
-	std::unordered_map<t_anim_state, Anim>	animations;
-	t_anim_state							currentAnimation;
+	std::unordered_map<PlayerState, Anim>	animations;
+	PlayerState								currentAnimation;
 };
 
 #endif

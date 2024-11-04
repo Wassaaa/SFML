@@ -26,31 +26,29 @@ void Player::render(sf::RenderTarget &target)
 
 void Player::updateMovement()
 {
-	if (this->velocity.x > 0.f)
+	PlayerState newState = this->determineState();
+	this->updateSpriteFacing();
+	if (newState != currentState)
 	{
-		this->sprite.setOrigin({0, 0});
-		this->sprite.setScale(this->scale, this->scale);
-		this->moveDirection = MV_RIGHT;
-		animations.playAnimation(WALKING);
-	}
-	if (this->velocity.x < 0.f)
-	{
-		this->sprite.setOrigin({this->sprite.getGlobalBounds().width / this->scale, 0});
-		this->sprite.setScale(-this->scale, this->scale);
-		this->moveDirection = MV_LEFT;
-		animations.playAnimation(WALKING);
-	}
-	if (this->velocity.y > 0.f)
-	{
-		animations.playAnimation(FALLING);
-	}
-	if (this->velocity.y < 0.f)
-	{
-		animations.playAnimation(JUMPING);
-	}
-	if (this->velocity.x == 0 && this->velocity.y == 0)
-	{
-		animations.playAnimation(IDLE);
+		currentState = newState;
+		switch (currentState)
+		{
+		case PlayerState::IDLE:
+			animations.playAnimation(PlayerState::IDLE);
+			break;
+		case PlayerState::WALKING:
+			animations.playAnimation(PlayerState::WALKING);
+			break;
+		case PlayerState::JUMPING:
+			animations.playAnimation(PlayerState::JUMPING);
+			break;
+		case PlayerState::FALLING:
+			animations.playAnimation(PlayerState::FALLING);
+			break;
+
+		default:
+			break;
+		}
 	}
 }
 
@@ -64,7 +62,8 @@ void Player::updatePhysics()
 	// gravity
 	this->velocity.y += 1.0 * this->gravity;
 	if (std::abs(this->velocity.y) > this->velocityMaxY)
-		this->velocity.y = this->velocityMaxY * ((this->velocity.y < 0) ? -1.f : 1.f);
+		this->velocity.y = this->velocityMaxY * ((this->velocity.y < 0) ?
+				-1.f : 1.f);
 	// limit gravity
 	if (std::abs(this->velocity.y) < this->velocityMin)
 		this->velocity.y = 0.f;
@@ -83,15 +82,41 @@ void Player::move(const float dir_x, const float dir_y)
 	this->velocity.y += dir_y * this->acceleration;
 	// limit velocity
 	if (std::abs(this->velocity.x) > this->velocityMax)
-		this->velocity.x = this->velocityMax * ((this->velocity.x < 0) ? -1.f : 1.f);
+		this->velocity.x = this->velocityMax * ((this->velocity.x < 0) ?
+				-1.f : 1.f);
 }
 
 void Player::jump()
 {
 	if (!this->canjump)
-		return;
+		return ;
 	this->velocity.y = -50.f;
 	this->canjump = false;
+}
+
+void Player::updateSpriteFacing()
+{
+	if (velocity.x > 0.f)
+	{
+		this->sprite.setOrigin({0, 0});
+		this->sprite.setScale(this->scale, this->scale);
+	}
+	else if (velocity.x < 0.f)
+	{
+		this->sprite.setOrigin({this->sprite.getGlobalBounds().width / this->scale, 0});
+		this->sprite.setScale(-this->scale, this->scale);
+	}
+}
+
+PlayerState Player::determineState()
+{
+	if (this->velocity.y < 0.f)
+		return PlayerState::JUMPING;
+	if (this->velocity.y > 0.f)
+		return PlayerState::FALLING;
+	if (velocity.x != 0.f)
+		return PlayerState::WALKING;
+	return PlayerState::IDLE;
 }
 
 const sf::Vector2f Player::getPosition() const
@@ -117,7 +142,8 @@ void Player::resetVelocityY()
 
 void Player::initVariables()
 {
-	this->moveDirection = MV_RIGHT;
+	this->moveDirection = MoveDir::RIGHT;
+	this->currentState = PlayerState::IDLE;
 	this->canjump = true;
 	this->scale = 3.f;
 }
@@ -130,10 +156,14 @@ void Player::initSprite()
 void Player::initAnim()
 {
 	animations.loadTexture("/home/a/SFML/textures/rpg_char/Characters(100x100)/Soldier/Soldier with shadows/Soldier.png");
-	animations.addAnim(IDLE, {100, 100}, {0, 0}, 6, sf::Time(sf::milliseconds(100)), true);
-	animations.addAnim(WALKING, {100, 100}, {0, 1}, 8, sf::Time(sf::milliseconds(100)), true);
-	animations.addAnim(JUMPING, {100, 100}, {0, 2}, 6, sf::Time(sf::milliseconds(50)), false);
-	animations.addAnim(FALLING, {100, 100}, {0, 3}, 6, sf::Time(sf::milliseconds(50)), false);
+	animations.addAnim(PlayerState::IDLE, {100, 100}, {0, 0}, 6,
+		sf::Time(sf::milliseconds(100)), true);
+	animations.addAnim(PlayerState::WALKING, {100, 100}, {0, 1}, 8,
+		sf::Time(sf::milliseconds(100)), true);
+	animations.addAnim(PlayerState::JUMPING, {100, 100}, {0, 2}, 6,
+		sf::Time(sf::milliseconds(50)), false);
+	animations.addAnim(PlayerState::FALLING, {100, 100}, {0, 3}, 6,
+		sf::Time(sf::milliseconds(50)), false);
 }
 
 void Player::initPhysics()
@@ -142,7 +172,7 @@ void Player::initPhysics()
 	this->velocityMin = 1.f;
 	this->acceleration = 3.f;
 	this->drag = 0.92f;
-	this->gravity = 4.f;
+	this->gravity = 2.f;
 	this->velocityMaxY = 45.f;
 	// this->velocity = sf::Vector2f(0.f, 0.f);
 }

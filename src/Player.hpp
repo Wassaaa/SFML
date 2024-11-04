@@ -1,14 +1,8 @@
 #ifndef PLAYER_HPP
 # define PLAYER_HPP
 # include "../pch.hpp"
-
-enum PLAYER_ANIMATION_STATES{
-	IDLE,
-	MOVING_LEFT,
-	MOVING_RIGHT,
-	JUMPING,
-	FALLING,
-};
+# include "AnimComponent.hpp"
+# include "AnimationStates.hpp"
 
 class Player
 {
@@ -17,17 +11,15 @@ public:
 	~Player();
 
 	//functions
-	void update();
+	void update(float &dt);
 	void render(sf::RenderTarget& target);
 	void updatePhysics();
 	void updateMovement();
-	void updateAnimations();
+	void updateAnim(float &dt);
 	void move(const float dir_x, const float dir_y);
 	void jump();
-	void resetAnimationTimer();
 
 	//accessors
-	const bool getAnimSwitch();
 	const sf::Vector2f getPosition() const;
 	const sf::FloatRect getGlobalBounds() const;
 
@@ -37,19 +29,16 @@ public:
 private:
 	sf::Sprite sprite;
 	sf::Texture textureSheet;
+	AnimComponent animations;
+
 
 	//vars
 	float scale;
 
 	//Movement
-
+	t_mv_dir moveDirection;
 	//Animation
-	sf::IntRect currentFrame;
-	sf::IntRect def;
-	sf::IntRect mirror;
-	sf::Clock animationTimer;
-	short animState;
-	bool animationSwitch;
+	t_anim_state animState;
 
 	//physics
 	sf::Vector2f velocity;
@@ -64,8 +53,7 @@ private:
 
 	void initVariables();
 	void initSprite();
-	void initTexture();
-	void initAnimations();
+	void initAnim();
 	void initPhysics();
 
 };

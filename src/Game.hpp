@@ -23,8 +23,12 @@ public:
 	void renderPlayer();
 	void renderTileMap();
 
+	float &dt() { return this->deltaTime; }
+
+
 private:
 
+	sf::Clock deltaClock;
 	sf::RenderWindow window;
 	sf::Event ev;
 	sf::Texture tileSheet;
@@ -34,7 +38,7 @@ private:
 	std::map<std::string, sf::Keyboard::Key> keyboardMappings;
 	std::map<std::string, sf::Mouse::Button> mouseMappings;
 	//variables
-
+	float deltaTime;
 	//tiles file
 	float tileScale;
 	int tileSize;

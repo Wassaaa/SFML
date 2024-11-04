@@ -46,6 +46,7 @@ void Game::updateInput()
 
 void Game::update()
 {
+	this->deltaTime = deltaClock.restart().asSeconds();
 	while (this->window.pollEvent(this->ev))
 		switch (this->ev.type)
 		{
@@ -55,13 +56,6 @@ void Game::update()
 		case sf::Event::KeyPressed:
 			if (this->ev.key.code == sf::Keyboard::Escape)
 				this->window.close();
-			break ;
-		case sf::Event::KeyReleased:
-			if (this->ev.key.code == sf::Keyboard::A
-				|| this->ev.key.code == sf::Keyboard::D
-				|| this->ev.key.code == sf::Keyboard::W
-				|| this->ev.key.code == sf::Keyboard::S)
-				this->player.get()->resetAnimationTimer();
 			break ;
 		default:
 			break ;
@@ -93,7 +87,7 @@ void Game::renderTileMap()
 
 void Game::updatePlayer()
 {
-	this->player.get()->update();
+	this->player.get()->update(dt());
 }
 
 void Game::updateCollision()

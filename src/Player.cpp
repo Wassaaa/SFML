@@ -1,11 +1,10 @@
 #include "Player.hpp"
 
-Player::Player()
+Player::Player() : animations(sprite)
 {
 	this->initVariables();
-	this->initTexture();
 	this->initSprite();
-	this->initAnimations();
+	this->initAnim();
 	this->initPhysics();
 }
 
@@ -13,11 +12,11 @@ Player::~Player()
 {
 }
 
-void Player::update()
+void Player::update(float &dt)
 {
 	this->updateMovement();
 	this->updatePhysics();
-	this->updateAnimations();
+	this->updateAnim(dt);
 }
 
 void Player::render(sf::RenderTarget &target)
@@ -28,43 +27,36 @@ void Player::render(sf::RenderTarget &target)
 void Player::updateMovement()
 {
 	if (this->velocity.x > 0.f)
-		this->animState = MOVING_RIGHT;
-	else if (this->velocity.x < 0.f)
-		this->animState = MOVING_LEFT;
-	else
-		this->animState = IDLE;
+	{
+		this->sprite.setOrigin({0, 0});
+		this->sprite.setScale(this->scale, this->scale);
+		this->moveDirection = MV_RIGHT;
+		animations.playAnimation(WALKING);
+	}
+	if (this->velocity.x < 0.f)
+	{
+		this->sprite.setOrigin({this->sprite.getGlobalBounds().width / this->scale, 0});
+		this->sprite.setScale(-this->scale, this->scale);
+		this->moveDirection = MV_LEFT;
+		animations.playAnimation(WALKING);
+	}
+	if (this->velocity.y > 0.f)
+	{
+		animations.playAnimation(FALLING);
+	}
+	if (this->velocity.y < 0.f)
+	{
+		animations.playAnimation(JUMPING);
+	}
+	if (this->velocity.x == 0 && this->velocity.y == 0)
+	{
+		animations.playAnimation(IDLE);
+	}
 }
 
-void Player::updateAnimations()
+void Player::updateAnim(float &dt)
 {
-	if (this->animationTimer.getElapsedTime().asMilliseconds() >= 100)
-	{
-		if (this->animState == IDLE)
-		{
-			this->currentFrame.top = 0;
-			this->currentFrame.left += 100;
-			if (this->currentFrame.left >= 500)
-				this->currentFrame.left = 0;
-		}
-		else if (this->animState == MOVING_LEFT
-			|| this->animState == MOVING_RIGHT)
-		{
-			this->sprite.setOrigin(0.f, 0.f);
-			this->sprite.setScale(this->scale, this->scale);
-			this->currentFrame.top = 100;
-			this->currentFrame.left += 100;
-			if (this->currentFrame.left >= 700)
-				this->currentFrame.left = 0;
-			if (this->animState == MOVING_LEFT)
-			{
-				this->sprite.setOrigin(this->sprite.getGlobalBounds().width
-					/ this->scale, 0.f);
-				this->sprite.setScale(-this->scale, this->scale);
-			}
-		}
-		this->animationTimer.restart();
-		this->sprite.setTextureRect(this->currentFrame);
-	}
+	animations.update(dt);
 }
 
 void Player::updatePhysics()
@@ -72,8 +64,7 @@ void Player::updatePhysics()
 	// gravity
 	this->velocity.y += 1.0 * this->gravity;
 	if (std::abs(this->velocity.y) > this->velocityMaxY)
-		this->velocity.y = this->velocityMaxY * ((this->velocity.y < 0) ?
-				-1.f : 1.f);
+		this->velocity.y = this->velocityMaxY * ((this->velocity.y < 0) ? -1.f : 1.f);
 	// limit gravity
 	if (std::abs(this->velocity.y) < this->velocityMin)
 		this->velocity.y = 0.f;
@@ -92,30 +83,15 @@ void Player::move(const float dir_x, const float dir_y)
 	this->velocity.y += dir_y * this->acceleration;
 	// limit velocity
 	if (std::abs(this->velocity.x) > this->velocityMax)
-		this->velocity.x = this->velocityMax * ((this->velocity.x < 0) ?
-				-1.f : 1.f);
+		this->velocity.x = this->velocityMax * ((this->velocity.x < 0) ? -1.f : 1.f);
 }
 
 void Player::jump()
 {
-	this->velocity.y = -70.f;
+	if (!this->canjump)
+		return;
+	this->velocity.y = -50.f;
 	this->canjump = false;
-}
-
-void Player::resetAnimationTimer()
-{
-	this->animationTimer.restart();
-	this->animationSwitch = true;
-}
-
-const bool Player::getAnimSwitch()
-{
-	if (this->animationSwitch)
-	{
-		this->animationSwitch = false;
-		return (true);
-	}
-	return (false);
 }
 
 const sf::Vector2f Player::getPosition() const
@@ -136,35 +112,28 @@ void Player::setPosition(const float x, const float y)
 void Player::resetVelocityY()
 {
 	this->velocity.y = 0.f;
+	this->canjump = true;
 }
 
 void Player::initVariables()
 {
-	this->animState = IDLE;
+	this->moveDirection = MV_RIGHT;
 	this->canjump = true;
+	this->scale = 3.f;
 }
 
 void Player::initSprite()
 {
-	this->sprite.setTexture(this->textureSheet);
-	this->currentFrame = sf::IntRect(0, 300, 100, 100);
-	this->sprite.setTextureRect(this->currentFrame);
-	// this->sprite.setOrigin(sf::Vector2f(50.f, 50.f));
-	this->scale = 3.f;
 	this->sprite.setScale(this->scale, this->scale);
-	this->sprite.move(sf::Vector2f(100.f, 200.f));
 }
 
-void Player::initTexture()
+void Player::initAnim()
 {
-	if (!this->textureSheet.loadFromFile("/home/a/SFML/textures/rpg_char/Characters(100x100)/Soldier/Soldier with shadows/Soldier.png"))
-		std::cout << "ERROR::PLAYER::Could not load the player sheet!\n";
-}
-
-void Player::initAnimations()
-{
-	this->animationTimer.restart();
-	this->animationSwitch = true;
+	animations.loadTexture("/home/a/SFML/textures/rpg_char/Characters(100x100)/Soldier/Soldier with shadows/Soldier.png");
+	animations.addAnim(IDLE, {100, 100}, {0, 0}, 6, sf::Time(sf::milliseconds(100)), true);
+	animations.addAnim(WALKING, {100, 100}, {0, 1}, 8, sf::Time(sf::milliseconds(100)), true);
+	animations.addAnim(JUMPING, {100, 100}, {0, 2}, 6, sf::Time(sf::milliseconds(50)), false);
+	animations.addAnim(FALLING, {100, 100}, {0, 3}, 6, sf::Time(sf::milliseconds(50)), false);
 }
 
 void Player::initPhysics()
@@ -174,6 +143,6 @@ void Player::initPhysics()
 	this->acceleration = 3.f;
 	this->drag = 0.92f;
 	this->gravity = 4.f;
-	this->velocityMaxY = 15.f;
+	this->velocityMaxY = 45.f;
 	// this->velocity = sf::Vector2f(0.f, 0.f);
 }

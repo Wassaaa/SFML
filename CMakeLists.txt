@@ -21,6 +21,8 @@ target_sources(main
         src/Player.cpp
         src/Tile.cpp
         src/TileMap.cpp
+        src/AnimComponent.cpp
+        src/Anim.cpp
 )
 
 target_precompile_headers(main PRIVATE pch.hpp)

@@ -6,6 +6,7 @@
 # include <iostream>
 # include <time.h>
 # include <memory>
+# include <unordered_map>
 
 //SFML
 # include <SFML/System.hpp>

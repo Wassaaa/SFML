@@ -17,6 +17,10 @@ add_executable(main)
 target_sources(main
     PRIVATE
         src/main.cpp
+        src/EntityManager.cpp
+        src/GameEntity.cpp
+        src/IComponent.cpp
+        src/Sprite2DComponent.cpp
 )
 target_link_libraries(main PRIVATE sfml-graphics)
 target_compile_features(main PRIVATE cxx_std_17)

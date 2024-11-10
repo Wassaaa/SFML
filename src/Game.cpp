@@ -129,7 +129,7 @@ void Game::initPlayer()
 
 void Game::initTileSheet()
 {
-	if (!this->tileSheet.loadFromFile("/home/a/SFML/textures/Legacy/Assets/Packs/grotto_escape_pack/Base pack/Spritesheets/tiles.png"))
+	if (!this->tileSheet.loadFromFile("../../textures/Legacy/Assets/Packs/grotto_escape_pack/Base pack/Spritesheets/tiles.png"))
 		std::cout << "tiles map error";
 	this->tileScale = 4.f;
 	this->tileSize = 16;

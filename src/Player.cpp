@@ -155,7 +155,8 @@ void Player::initSprite()
 
 void Player::initAnim()
 {
-	animations.loadTexture("/home/a/SFML/textures/rpg_char/Characters(100x100)/Soldier/Soldier with shadows/Soldier.png");
+	if (!animations.loadTexture("../../textures/rpg_char/Characters(100x100)/Soldier/Soldier with shadows/Soldier.png"))
+		std::cout << "ERROR::PLAYER::INIT_ANIM::LOAD_TEXTURE\n";
 	animations.addAnim(PlayerState::IDLE, {100, 100}, {0, 0}, 6,
 		sf::Time(sf::milliseconds(100)), true);
 	animations.addAnim(PlayerState::WALKING, {100, 100}, {0, 1}, 8,
@@ -174,5 +175,4 @@ void Player::initPhysics()
 	this->drag = 0.92f;
 	this->gravity = 2.f;
 	this->velocityMaxY = 45.f;
-	// this->velocity = sf::Vector2f(0.f, 0.f);
 }

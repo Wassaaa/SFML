@@ -2,6 +2,7 @@
 
 AnimComponent::AnimComponent(sf::Sprite &sprite) : sprite(sprite)
 {
+	this->currentAnimation = PlayerState::NOTHING;
 }
 
 AnimComponent::~AnimComponent()
@@ -10,7 +11,13 @@ AnimComponent::~AnimComponent()
 
 bool AnimComponent::loadTexture(const std::string &texturePath)
 {
-	return (this->animSheet.loadFromFile(texturePath));
+	if (this->animSheet.loadFromFile(texturePath))
+	{
+		this->sprite.setTexture(this->animSheet);
+		std::cout << "Texture loaded and set to sprite\n";
+		return true;
+	}
+	return false;
 }
 
 void AnimComponent::addAnim(const PlayerState animState,
@@ -30,7 +37,6 @@ void AnimComponent::addAnim(const PlayerState animState,
 	if (currentAnimation == PlayerState::NOTHING)
 	{
 		currentAnimation = animState;
-		sprite.setTexture(animSheet);
 		sprite.setTextureRect(animations[animState].getCurrentFrame());
 	}
 }
